@@ -1,0 +1,57 @@
+#base "coop_base_sp_conversion.edt"
+
+"config"
+{
+	"campaign" "Blue Shift"
+	"console"
+	{
+	}
+	"features"
+	{
+		"KEEP_EQUIPMENT" "1"
+	}
+	"entity_base_bshift_sp_campaign"
+	{
+		// ai_relationship target "!player" resolves to a single player in MP;
+		// the classname "player" matches every player (same idiom the base
+		// conversion uses for outputs targeting !player)
+		"modify"
+		{
+			"classname" "ai_relationship"
+			"target" "!player"
+			"set"
+			{
+				"target" "player"
+			}
+		}
+		// Freeze only the game_ui's user. These four froze their user through a
+		// player_speedmod, which the base conversion turns into ModifySpeedAll -
+		// so everyone froze while one player drove the train or used a console.
+		// Give them game_ui's own "freeze player" flag instead (gameui_coop
+		// applies it to the bound user only) and drop the speedmod calls. The
+		// four speedmods are used by nothing else (checked across all 31 maps).
+		"modify"
+		{
+			"classname" "game_ui"
+			"targetname" "/^(VS_gameui|cftrain_engine_Gameui|relay_device_adjust_ui|lambdalock_ui_input)$/"
+			"flags"
+			{
+				"spawnflags"
+				{
+					"add" "32"
+				}
+			}
+		}
+		"modify"
+		{
+			"outputs"
+			{
+				"remove"
+				{
+					"target" "/^(VS_restrict|cftrain_engine_freeze|relay_device_adjust_restrictor|lambdalock_ui_restrictor)$/"
+					"input" "ModifySpeed"
+				}
+			}
+		}
+	}
+}
